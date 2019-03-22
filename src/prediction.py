@@ -10,7 +10,7 @@ def predict(original_test_data, test_data_loader, model, device):
                    'sentence': test_example.text_a,
                    'true_label': test_example.label} for test_example in original_test_data]
 
-    all_logits = None
+    label_logit_pairs = []
 
     model.eval()
     nb_eval_steps, nb_eval_examples = 0, 0
@@ -22,14 +22,16 @@ def predict(original_test_data, test_data_loader, model, device):
 
         with torch.no_grad():
             logits = model(input_ids, segment_ids, input_mask)
-            logits = logits.sigmoid()
+            activated_output = logits.sigmoid()
 
-        if all_logits is None:
-            all_logits = logits.detach().cpu().numpy()
-        else:
-            all_logits = np.concatenate((all_logits, logits.detach().cpu().numpy()), axis=0)
+        logits = logits.detach().cpu().numpy()
+        predicted_labels = np.argmax(logits, axis=1)
+        max_activated_outputs = activated_output.detach().cpu().numpy()
+
+        for l, a in zip(predicted_labels, max_activated_outputs):
+            label_logit_pairs.append({'predicted_label': l, 'probability': a[l]})
 
         nb_eval_examples += input_ids.size(0)
         nb_eval_steps += 1
 
-    return pd.merge(pd.DataFrame(input_data), pd.DataFrame(all_logits, columns='predicted_label'))
+    return pd.merge(pd.DataFrame(input_data), pd.DataFrame(label_logit_pairs), left_index=True, right_index=True)

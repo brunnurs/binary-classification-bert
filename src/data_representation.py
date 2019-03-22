@@ -5,7 +5,7 @@ import csv
 class InputExample(object):
     """A single training/test example for simple sequence classification."""
 
-    def __init__(self, guid, text_a, text_b=None, label=None):
+    def __init__(self, guid, text_a, text_b=None, label: int = None):
         """Constructs a InputExample.
 
         Args:
@@ -82,7 +82,7 @@ class Sst2Processor(DataProcessor):
 
     def get_labels(self):
         """See base class."""
-        return ["0", "1"]
+        return [0, 1]
 
     @staticmethod
     def _create_examples(lines, set_type):
@@ -95,5 +95,5 @@ class Sst2Processor(DataProcessor):
             text_a = line[0]
             label = line[1]
             examples.append(
-                InputExample(guid=guid, text_a=text_a, text_b=None, label=label))
+                InputExample(guid=guid, text_a=text_a, text_b=None, label=int(label)))
         return examples

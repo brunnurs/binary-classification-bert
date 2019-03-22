@@ -1,6 +1,7 @@
 import logging
 
 from pytorch_pretrained_bert import BertTokenizer
+from sklearn.metrics import classification_report
 
 from src.TorchInitializer import TorchInitializer
 from src.config import Config
@@ -31,4 +32,10 @@ if __name__ == "__main__":
 
     prediction = predict(test_examples, test_data_loader, model, device)
     print("Prediction done! Result-Shape: {}".format(prediction.shape))
+
+    print(prediction[:10])
+
+    print(classification_report(list(prediction['true_label']), list(prediction['predicted_label'])))
+
+
 
